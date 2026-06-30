@@ -1,112 +1,121 @@
-# Pump It Up: Data Mining the Water Table
+# Pump It Up: Data Mining the Water Table (DrivenData)
 
-**DrivenData Competition #7** — Predicción del estado operativo de bombas de agua en Tanzania.
+Bienvenido a este repositorio. Aquí se presenta mi solución para la competición **"Pump it Up: Data Mining the Water Table"** alojada en DrivenData.
 
-## Resultado
+El objetivo principal de este reto de Machine Learning consiste en predecir el estado operativo de los puntos de suministro de agua (bombas de agua) distribuidos en toda Tanzania. Se trata de un problema de clasificación multiclase complejo debido a la alta cantidad de valores nulos implícitos, variables categóricas de elevadísima cardinalidad y un desbalanceo de clases muy marcado.
 
-| Métrica | Valor |
-|---|---|
-| Accuracy (leaderboard) | **0.8186** |
-| Posición | **2624 / 19 775** (~top 13%) |
+---
 
-## Problema
+# Rendimiento y Posición en la Competición
 
-Clasificación multiclase con tres categorías:
+- **Métrica Objetivo:** Clasificación por Accuracy.
+- **Resultado Final Obtenido:** **0.8195 (81.95%)**
+- **Posición en el Leaderboard:** **2364 de 19,775 participantes** (aproximadamente en el **Top 12%** a nivel global).
 
-- `functional` — la bomba funciona correctamente
-- `functional needs repair` — funciona pero necesita reparación
-- `non functional` — no funciona
+---
 
-La métrica oficial es **classification rate (accuracy)**. La clase *functional needs repair* está muy subrepresentada (~7% del dataset), lo que hace especialmente difícil su predicción.
+# Arquitectura de la Solución y Metodología
 
-## Enfoque
+La estrategia de modelado e ingeniería se basa en cuatro pilares fundamentales para exprimir la señal de los datos sin comprometer la robustez estadística.
 
-### Preprocesado
-- Eliminación de columnas redundantes (`payment_type`, `quantity_group`) e irrelevantes (`recorded_by`, `num_private`)
-- Imputación de nulos explícitos (`scheme_management`, `installer` → `'Desconocido'`; `permit` → `0`)
-- Los missings implícitos (`longitude = 0`, `gps_height ≤ 0`) se mantienen: el ensemble los maneja mejor que cualquier imputación probada
+## 1. Análisis Exploratorio de Datos (EDA) y Limpieza
 
-### Feature Engineering
+- Detección y tratamiento de nulos ocultos como ceros en variables geográficas o temporales (`longitude`, `gps_height`, `construction_year`).
+- Eliminación de variables redundantes (`payment_type` por ser idéntica a `payment`, o `quantity_group` por duplicar a `quantity`).
+- Imputación controlada en variables estructurales como `scheme_management` e `installer`.
 
-| Variable | Tipo | Descripción |
-|---|---|---|
-| `antiguedad` | Numérica | `date_recorded.year − construction_year` |
-| `mes` | Numérica | Mes de la medición (estacionalidad) |
-| `gps_height_600` | Binaria | 1 si altitud > 600 m |
-| `buenas_reg` | Binaria | 1 si la región tiene < 33% de bombas no funcionales |
-| `malos_funders` | Binaria | 1 si el financiador tiene ≥ 40% de bombas no funcionales |
-| `lga_top_func` | Ordinal (0/1/2) | Clasificación del distrito por tasa de bombas funcionales |
+## 2. Ingeniería de Características Libre de Contaminación (Leakage-Free Feature Engineering)
 
-Las tres últimas features dependen de la variable objetivo. Para evitar **data leakage**, se encapsulan en un `TransformerMixin` personalizado (`TargetRatioFeatures`) que se ajusta únicamente con los datos de entrenamiento de cada fold del cross-validation.
+- Creación de variables estacionales (mes) y temporales (antigüedad calculada desde la fecha de registro).
+- **Target-Ratio Encoding avanzado** mediante un transformador personalizado (`TargetRatioFeatures`) que hereda de `BaseEstimator` y `TransformerMixin` de Scikit-Learn.
+- **Prevención del Data Leakage:** las variables basadas en tasas de fallos (`buenas_reg`, `malos_funders` y `lga_top_func`) se calculan únicamente utilizando el conjunto de entrenamiento de cada *fold* durante la validación cruzada, evitando cualquier contaminación del conjunto de validación.
 
-### Modelo
+## 3. Estrategia de Modelado (Ensemble de Soft Voting)
 
-Ensemble de **Soft Voting** con tres clasificadores:
+Construcción de un **VotingClassifier** mediante votación blanda combinando tres modelos optimizados previamente mediante `GridSearchCV` y `RandomizedSearchCV`:
 
-| Modelo | Peso | Librería |
-|---|---|---|
-| Random Forest | 3 | scikit-learn |
-| LightGBM | 2 | lightgbm |
-| XGBoost | 2 | xgboost |
+- **Random Forest** (Peso = 3)
+  - Modelo individual con mayor capacidad predictiva sobre este conjunto de datos.
 
-Los pesos se ajustaron empíricamente comparando experimentos en MLflow. RF recibe mayor peso porque obtuvo mejor accuracy individual en validación cruzada.
+- **LightGBM** (Peso = 2)
+  - Excelente manejo de variables categóricas complejas y alta velocidad de entrenamiento.
 
-### Validación
+- **XGBoost** (Peso = 2)
+  - Complementa al resto del ensemble capturando patrones distintos gracias a un sesgo de aprendizaje diferente.
 
-- `StratifiedKFold` con 5 folds (preserva la proporción de clases en cada fold)
-- `TargetRatioFeatures` se ajusta dentro de cada fold → evaluación sin leakage
-- Tracking completo de experimentos con **MLflow** (parámetros, métricas y modelo)
+## 4. Validación y Tracking
 
-### Búsqueda de hiperparámetros
+- Validación Cruzada Estratificada de **5 folds** (`StratifiedKFold`) para mantener la distribución de clases.
+- Gestión del ciclo de vida del experimento mediante **MLflow**, almacenando métricas, parámetros y modelos entrenados.
 
-- Random Forest: `GridSearchCV`
-- LightGBM: `RandomizedSearchCV` (n_iter=50), acelerado con GPU (Google Colab)
-- XGBoost: `GridSearchCV`, acelerado con GPU (Google Colab)
+---
 
-## Estructura del repositorio
+# Instalación y Uso
 
-```
-pump-it-up/
-├── pump_it_up_ensemble.ipynb   # Notebook principal
-├── README.md
-└── data/                       # No incluido en el repositorio
-    ├── X_train.csv
-    ├── y_train.csv
-    └── X_test.csv
-```
+El proyecto utiliza **rutas relativas**, permitiendo ejecutarlo tanto en un entorno local como en Google Colab sin modificar el código.
 
-Los datos se pueden descargar desde [DrivenData](https://www.drivendata.org/competitions/7/pump-it-up-data-mining-the-water-table/data/).
-
-## Requisitos
-
-```
-pandas
-numpy
-matplotlib
-seaborn
-plotly
-scikit-learn
-lightgbm
-xgboost
-mlflow
-ydata-profiling
-```
-
-Instalación:
+## 1. Clonar el repositorio
 
 ```bash
-pip install pandas numpy matplotlib seaborn plotly scikit-learn lightgbm xgboost mlflow ydata-profiling
+git clone https://github.com/inigoochoa/pump-it-up-competition.git
+cd pump-it-up-competition
 ```
 
-## Cómo ejecutar
+## 2. Instalar dependencias
 
-1. Descargar los datos desde DrivenData y colocarlos en `data/`
-2. Actualizar las rutas `PATH_TRAIN_X`, `PATH_TRAIN_Y` y `PATH_TEST` en la sección de configuración del notebook
-3. Ejecutar todas las celdas en orden
-4. Para repetir la búsqueda de hiperparámetros, cambiar `SEARCH = True` en la sección 9
+Instala todas las librerías necesarias mediante:
 
-## Decisiones clave
+```bash
+pip install -r requirements.txt
+```
 
-- **No imputar missings implícitos**: imputar longitude, gps_height y population por medianas regionales no mejoró el CV en ninguna variante probada
-- **class_weight=None**: a pesar del desbalanceo, el uso de pesos balanceados redujo el accuracy en CV para RF y LGBM
-- **FE documentado**: el notebook incluye todas las transformaciones probadas (activas y descartadas), con el motivo de cada decisión
+## 3. Descargar y organizar los datos
+
+Por las políticas de DrivenData, los archivos de datos **no están incluidos** en este repositorio.
+
+Para reproducir los resultados:
+
+1. Regístrate e inicia sesión en DrivenData.
+2. Descarga los datasets oficiales de la competición.
+3. Crea la siguiente estructura de carpetas:
+
+```text
+pump-it-up-competition/
+├── data/
+│   ├── X_train.csv
+│   ├── y_train.csv
+│   └── X_test.csv
+├── notebooks/
+│   └── pump_it_up_ensemble.ipynb
+├── .gitignore
+├── README.md
+└── requirements.txt
+```
+
+## 4. Google Colab
+
+Si ejecutas el notebook desde Google Colab:
+
+- Monta Google Drive.
+- Ajusta el directorio de trabajo mediante `os.chdir()`.
+- Mantén la carpeta `data/` en la misma estructura para que las rutas relativas funcionen correctamente.
+
+---
+
+# Tecnologías Utilizadas
+
+- **Lenguaje:** Python 3
+- **Manipulación de datos:** pandas, numpy
+- **Visualización:** matplotlib, seaborn, plotly
+- **Machine Learning:** scikit-learn, XGBoost, LightGBM
+- **EDA Automatizado:** ydata-profiling
+- **Experiment Tracking:** MLflow
+
+---
+
+# Autor
+
+**Íñigo Ochoa**
+
+---
+
