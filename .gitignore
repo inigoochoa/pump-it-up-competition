@@ -1,0 +1,26 @@
+# --- Datasets y Datos ---
+# Ignoramos la carpeta data para no subir CSVs pesados a GitHub
+data/
+*.csv
+*.xlsx
+
+# --- Python & Jupyter ---
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+.virtualenv/
+venv/
+ENV/
+
+# --- Entornos locales e Integraciones ---
+# Google Colab / Drive temporales
+.config/
+drive/
+
+# MLflow local outputs (si clonas o corres en local)
+mlruns/
+mlflow_artifacts/
+
+# Reportes pesados de EDA automatizados
+*.html
