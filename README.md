@@ -1,7 +1,5 @@
 # Pump It Up: Data Mining the Water Table (DrivenData)
 
-URL de la competición: https://www.drivendata.org/competitions/7/pump-it-up-data-mining-the-water-table/page/23/
-
 El objetivo principal de este reto de Machine Learning consiste en predecir el estado operativo de los puntos de suministro de agua (bombas de agua) distribuidos en toda Tanzania. Se trata de un problema de clasificación multiclase complejo debido a la alta cantidad de valores nulos implícitos, variables categóricas de elevadísima cardinalidad y un desbalanceo de clases muy marcado.
 
 ---
