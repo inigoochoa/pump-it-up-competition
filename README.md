@@ -25,7 +25,7 @@ La estrategia de modelado e ingeniería se basa en cuatro pilares fundamentales 
 ## 2. Ingeniería de Características Libre de Contaminación (Leakage-Free Feature Engineering)
 
 - Creación de variables estacionales (mes) y temporales (antigüedad calculada desde la fecha de registro).
-- **Target-Ratio Encoding avanzado** mediante un transformador personalizado (`TargetRatioFeatures`) que hereda de `BaseEstimator` y `TransformerMixin` de Scikit-Learn.
+- **Target-Ratio Encoding avanzado** implementado mediante dos funciones: `fit_target_features()`, que aprende los umbrales exclusivamente con los datos de entrenamiento, y `transform_target_features()`, que los aplica a cualquier split.
 - **Prevención del Data Leakage:** las variables basadas en tasas de fallos (`buenas_reg`, `malos_funders` y `lga_top_func`) se calculan únicamente utilizando el conjunto de entrenamiento de cada *fold* durante la validación cruzada, evitando cualquier contaminación del conjunto de validación.
 
 ## 3. Estrategia de Modelado (Ensemble de Soft Voting)
