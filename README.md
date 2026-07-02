@@ -7,8 +7,8 @@ El objetivo principal de este reto de Machine Learning consiste en predecir el e
 # Rendimiento y Posición en la Competición
 
 - **Métrica Objetivo:** Clasificación por Accuracy.
-- **Resultado Final Obtenido:** **0.8195 (81.95%)**
-- **Posición en el Leaderboard:** **2364 de 19,775 participantes** (aproximadamente en el **Top 12%** a nivel global).
+- **Resultado Final Obtenido:** **0.8186 (81.86%)**
+- **Posición en el Leaderboard:** **2364 de 19,775 participantes** (aproximadamente en el **Top 13%** a nivel global).
 
 ---
 
