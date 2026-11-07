@@ -1,5 +1,5 @@
-# --- Datasets y Datos ---
-# Ignoramos la carpeta data para no subir CSVs pesados a GitHub
+# --- Datasets ---
+# data/ is ignored so the (large, competition-provided) CSVs are not pushed to GitHub
 data/
 *.csv
 *.xlsx
@@ -13,15 +13,16 @@ __pycache__/
 venv/
 ENV/
 
-# --- Entornos locales e Integraciones ---
-# Google Colab / Drive temporales
+# --- Local environments and integrations ---
+# Google Colab / Drive temp files
 .config/
 drive/
 
-# MLflow local outputs (si clonas o corres en local)
+# Local MLflow outputs (if you clone or run locally)
 mlruns/
 mlflow_artifacts/
+mlflow.db
 
-# Reportes pesados de EDA automatizados
+# Heavy automated EDA reports
 *.html
 .DS_Store
