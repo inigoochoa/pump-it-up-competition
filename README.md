@@ -20,7 +20,8 @@ missingness, very high-cardinality categoricals, and a sharp class imbalance.
 | Metric | Value |
 |---|---|
 | **Cross-validation accuracy** (5-fold, leakage-free) | **0.8153 ± 0.0036** |
-| **DrivenData leaderboard** | ~top 13% of 19,775 participants *(exact score pending reconfirmation after a fresh submission — see note below)* |
+| **DrivenData leaderboard accuracy** | **0.8203** |
+| **Leaderboard position** | **2489 / 20,171** (~top 12%) |
 
 <p align="center">
   <img src="assets/target_distribution.png" alt="Target variable distribution" width="32%">
@@ -28,12 +29,6 @@ missingness, very high-cardinality categoricals, and a sharp class imbalance.
   <img src="assets/confusion_matrix.png" alt="Confusion matrix" width="32%">
 </p>
 <p align="center"><em>Class imbalance in the target · implicit missing values hiding as <code>longitude = 0</code> · final cross-validation confusion matrix.</em></p>
-
-> **Note on the leaderboard figure:** earlier versions of this repo disagreed on the
-> exact leaderboard accuracy and rank (0.8186 vs 0.8195, position 2364 vs 2624). The
-> author is resubmitting to DrivenData to confirm the authoritative number; until then
-> the cross-validation accuracy above is the reliable, reproducible metric for this
-> repo.
 
 ---
 
