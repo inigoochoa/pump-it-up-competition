@@ -1,3 +1,5 @@
+![Pump It Up](assets/pump-it-up-banner.png)
+
 # Pump It Up: Data Mining the Water Table (DrivenData)
 
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
