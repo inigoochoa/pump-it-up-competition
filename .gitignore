@@ -24,3 +24,4 @@ mlflow_artifacts/
 
 # Reportes pesados de EDA automatizados
 *.html
+.DS_Store
